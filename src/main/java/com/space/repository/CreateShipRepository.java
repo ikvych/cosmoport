@@ -8,5 +8,5 @@ import java.sql.Date;
 import java.util.List;
 
 public interface CreateShipRepository extends PagingAndSortingRepository<ShipEntity, Long> {
-    boolean existsById(Long id);
+
 }

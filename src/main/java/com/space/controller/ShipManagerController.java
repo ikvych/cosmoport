@@ -1,11 +1,11 @@
 package com.space.controller;
 
 import com.space.exeption.NotValidDataException;
+import com.space.exeption.ShipNotFoundException;
 import com.space.model.EntityRequestDTO;
 import com.space.model.EntityResponseDTO;
 import com.space.model.ShipEntity;
 import com.space.model.ShipType;
-import com.space.repository.UpdateShipRepository;
 import com.space.service.CreateShipService;
 import com.space.service.DeleteShipService;
 import com.space.service.FindShipService;
@@ -13,10 +13,8 @@ import com.space.service.UpdateShipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Date;
 import java.util.List;
 
 @RestController
@@ -44,13 +42,7 @@ public class ShipManagerController {
                                                       @RequestParam(required = false, name = "minRating") Double minRating, @RequestParam(required = false, name = "maxRating") Double maxRating,
                                                       @RequestParam(required = false, name = "order") ShipOrder order, @RequestParam(required = false, name = "pageNumber") Integer pageNumber,
                                                       @RequestParam(required = false, name = "pageSize") Integer pageSize) {
-        List<ShipEntity> ships = findShipService.findAnything(after, before, maxCrewSize, minCrewSize, maxSpeed, minSpeed, maxRating, minRating, name, planet, isUsed, shipType, order, pageNumber, pageSize);
-        for (ShipEntity ship : ships) {
-            System.out.println(ship.getName());
-            System.out.println(ship.getProdDate());
-            System.out.println(ship.getCrewSize());
-        }
-        return ships;
+        return findShipService.findShips(after, before, maxCrewSize, minCrewSize, maxSpeed, minSpeed, maxRating, minRating, name, planet, isUsed, shipType, order, pageNumber, pageSize);
     }
 
     @GetMapping("ships/count")
@@ -60,20 +52,25 @@ public class ShipManagerController {
                                      @RequestParam(required = false, name = "minSpeed") Double minSpeed, @RequestParam(required = false, name = "maxSpeed") Double maxSpeed,
                                      @RequestParam(required = false, name = "minCrewSize") Integer minCrewSize, @RequestParam(required = false, name = "maxCrewSize") Integer maxCrewSize,
                                      @RequestParam(required = false, name = "minRating") Double minRating, @RequestParam(required = false, name = "maxRating") Double maxRating) {
-        return findShipService.countAll(after, before, maxCrewSize, minCrewSize, maxSpeed, minSpeed, maxRating, minRating, name, planet, isUsed, shipType);
+        return findShipService.countShips(after, before, maxCrewSize, minCrewSize, maxSpeed, minSpeed, maxRating, minRating, name, planet, isUsed, shipType);
     }
 
     @PostMapping("ships")
     public ResponseEntity<EntityResponseDTO> createShip(@RequestBody EntityRequestDTO requestDTO) {
-        ResponseEntity<EntityResponseDTO> responseEntity = createShipService.createShip(requestDTO);
-        return responseEntity;
+        EntityResponseDTO responseEntity;
+        try {
+            responseEntity = createShipService.createShip(requestDTO);
+        } catch (NullPointerException | IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(responseEntity, HttpStatus.OK);
     }
 
     @GetMapping("ships/{id}")
     public ResponseEntity<EntityResponseDTO> getShip(@PathVariable("id") String id) {
         EntityResponseDTO responseEntity;
         try {
-            responseEntity = findShipService.findById(id);
+            responseEntity = findShipService.findShipById(id);
         } catch (NumberFormatException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (NotValidDataException e) {
@@ -84,32 +81,24 @@ public class ShipManagerController {
 
     @DeleteMapping("ships/{id}")
     public ResponseEntity<HttpStatus> deleteShip(@PathVariable("id") String id) {
-        boolean response;
         try {
-            response = deleteShipService.deleteById(id);
-        } catch (NumberFormatException e) {
+            deleteShipService.deleteById(id);
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (NotValidDataException e) {
+        } catch (ShipNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if (response) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("ships/{id}")
-    public ResponseEntity<EntityResponseDTO> upDateShips(@PathVariable("id") String id, @RequestBody EntityRequestDTO requestDTO) {
+    public ResponseEntity<EntityResponseDTO> updateShips(@PathVariable("id") String id, @RequestBody EntityRequestDTO requestDTO) {
         EntityResponseDTO responseEntity;
         try {
             responseEntity = updateShipService.updateShipById(id, requestDTO);
-        } catch (NotValidDataException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (NumberFormatException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (ShipNotFoundException r) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(responseEntity, HttpStatus.OK);

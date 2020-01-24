@@ -10,27 +10,21 @@ import java.util.List;
 
 public interface FindShipService {
 
-    public List<ShipEntity> findAllById(Long id);
+    public List<ShipEntity> findShips(Long afterDate, Long beforeDate,
+                                      Integer maxSize, Integer minSize,
+                                      Double maxSpeed, Double minSpeed,
+                                      Double maxRating, Double minRating,
+                                      String name, String planet,
+                                      Boolean isUsed, ShipType shipType,
+                                      ShipOrder shipOrder, Integer pageNumber,
+                                      Integer pageSize);
 
-    public List<ShipEntity> findAllByProdDateAndCrewSize(Date dateAfter, Date dateBefore, Integer maxCrewSize, Integer minCrewSize);
+    public Integer countShips(Long afterDate, Long beforeDate,
+                              Integer maxSize, Integer minSize,
+                              Double maxSpeed, Double minSpeed,
+                              Double maxRating, Double minRating,
+                              String name, String planet,
+                              Boolean isUsed, ShipType shipType);
 
-    public List<ShipEntity> nameIsContaining(String name);
-
-    public List<ShipEntity> findAnything (Long afterDate, Long beforeDate,
-                                          Integer maxSize, Integer minSize,
-                                          Double maxSpeed, Double minSpeed,
-                                          Double maxRating, Double minRating,
-                                          String name, String planet,
-                                          Boolean isUsed, ShipType shipType,
-                                          ShipOrder shipOrder, Integer pageNumber,
-                                          Integer pageSize);
-
-    public Integer countAll (Long afterDate, Long beforeDate,
-                             Integer maxSize, Integer minSize,
-                             Double maxSpeed, Double minSpeed,
-                             Double maxRating, Double minRating,
-                             String name, String planet,
-                             Boolean isUsed, ShipType shipType);
-
-    public EntityResponseDTO findById(String id);
+    public EntityResponseDTO findShipById(String id);
 }

@@ -18,59 +18,42 @@ import java.util.Calendar;
 
 
 @Service
-public class CreateShipServiceImpl implements CreateShipService {
+public class CreateShipServiceImpl extends AbstractShipService implements CreateShipService {
 
     @Autowired
     private CreateShipRepository createShipRepository;
 
     @Override
     @Transactional
-    public ResponseEntity<EntityResponseDTO> createShip(EntityRequestDTO requestDTO) {
+    public EntityResponseDTO createShip(EntityRequestDTO requestDTO) {
         EntityResponseDTO responseDTO = new EntityResponseDTO();
         ShipEntity shipEntity = new ShipEntity();
-        try {
-            shipEntity.setName(requestDTO.name);
-            shipEntity.setPlanet(requestDTO.planet);
-            shipEntity.setSpeed(requestDTO.speed);
-            shipEntity.setShipType(requestDTO.shipType);
-            shipEntity.setUsed(requestDTO.isUsed);
-            shipEntity.setProdDate(requestDTO.prodDate);
-            shipEntity.setCrewSize(requestDTO.crewSize);
-        } catch (NotValidDataException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
 
-        double rating;
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(shipEntity.getProdDate());
-        if (shipEntity.getUsed()) {
-            rating = (80 * shipEntity.getSpeed() * 0.5) / (3019 - calendar.get(Calendar.YEAR) + 1);
-            System.out.println(shipEntity.getProdDate() + " this is year");
+        if (isNameValid(requestDTO.getName())) {
+            shipEntity.setName(requestDTO.getName());
         }
-        else {
-            rating = (80 * shipEntity.getSpeed() * 1) / (3019 - calendar.get(Calendar.YEAR) + 1);
+        if (isPlanetValid(requestDTO.getPlanet())) {
+            shipEntity.setPlanet(requestDTO.getPlanet());
         }
+        if (isShipTypeValid(requestDTO.getShipType())) {
+            shipEntity.setShipType(requestDTO.getShipType());
+        }
+        if (isProdDateValid(requestDTO.getProdDate())) {
+            shipEntity.setProdDate(requestDTO.getProdDate());
+        }
+        if (isSpeedValid(requestDTO.getSpeed())) {
+            shipEntity.setSpeed(requestDTO.getSpeed());
+        }
+        if (isCrewSizeValid(requestDTO.getCrewSize())) {
+            shipEntity.setCrewSize(requestDTO.getCrewSize());
+        }
+        shipEntity.setUsed(requestDTO.isUsed);
+        double rating = calcRating(shipEntity.getProdDate(), shipEntity.getSpeed(), shipEntity.getUsed());
+
         shipEntity.setRating(rating);
         ShipEntity createdEntity = createShipRepository.save(shipEntity);
-        System.out.println(createShipRepository.findById(41L).get().getName() + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         createResponseEntity(responseDTO, createdEntity);
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        return responseDTO;
     }
 
-    private void createResponseEntity(final EntityResponseDTO responseDTO, final ShipEntity shipEntity) {
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-            @Override
-            public void afterCommit() {
-                responseDTO.setId(shipEntity.getId());
-                responseDTO.setName(shipEntity.getName());
-                responseDTO.setPlanet(shipEntity.getPlanet());
-                responseDTO.setCrewSize(shipEntity.getCrewSize());
-                responseDTO.setProdDate(shipEntity.getProdDate().getTime());
-                responseDTO.setRating(shipEntity.getRating());
-                responseDTO.setShipType(shipEntity.getShipType());
-                responseDTO.setUsed(shipEntity.getUsed());
-                responseDTO.setSpeed(shipEntity.getSpeed());
-            }
-        });
-    }
 }

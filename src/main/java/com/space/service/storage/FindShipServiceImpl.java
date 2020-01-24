@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class FindShipServiceImpl implements FindShipService {
+public class FindShipServiceImpl extends AbstractShipService implements FindShipService {
     private Date afterDate;
     private Date beforeDate;
     private Integer maxSize;
@@ -35,22 +35,7 @@ public class FindShipServiceImpl implements FindShipService {
     private FindShipRepository findShipRepository;
 
     @Override
-    public List<ShipEntity> findAllById(Long id) {
-        return findShipRepository.findAllById(id);
-    }
-
-    @Override
-    public List<ShipEntity> findAllByProdDateAndCrewSize(Date dateAfter, Date dateBefore, Integer maxCrewSize, Integer minCrewSize) {
-        return findShipRepository.findAllByProdDateAfterAndProdDateBeforeAndCrewSizeLessThanAndCrewSizeGreaterThan(dateAfter, dateBefore, maxCrewSize, minCrewSize);
-    }
-
-    @Override
-    public List<ShipEntity> nameIsContaining(String name) {
-        return findShipRepository.findAllByNameIsContaining(name);
-    }
-
-    @Override
-    public List<ShipEntity> findAnything(Long afterDate, Long beforeDate, Integer maxSize, Integer minSize, Double maxSpeed, Double minSpeed, Double maxRating, Double minRating, String name, String planet, Boolean isUsed, ShipType shipType, ShipOrder shipOrder, Integer pageNumber, Integer pageSize) {
+    public List<ShipEntity> findShips(Long afterDate, Long beforeDate, Integer maxSize, Integer minSize, Double maxSpeed, Double minSpeed, Double maxRating, Double minRating, String name, String planet, Boolean isUsed, ShipType shipType, ShipOrder shipOrder, Integer pageNumber, Integer pageSize) {
         init(afterDate, beforeDate, maxSize, minSize, maxSpeed, minSpeed, maxRating, minRating, name, planet, isUsed, shipType);
         List<ShipEntity> ships = findAllShips();
         sortAllShips(ships, shipOrder);
@@ -58,14 +43,14 @@ public class FindShipServiceImpl implements FindShipService {
     }
 
     @Override
-    public Integer countAll(Long afterDate, Long beforeDate, Integer maxSize, Integer minSize, Double maxSpeed, Double minSpeed, Double maxRating, Double minRating, String name, String planet, Boolean isUsed, ShipType shipType) {
+    public Integer countShips(Long afterDate, Long beforeDate, Integer maxSize, Integer minSize, Double maxSpeed, Double minSpeed, Double maxRating, Double minRating, String name, String planet, Boolean isUsed, ShipType shipType) {
         init(afterDate, beforeDate, maxSize, minSize, maxSpeed, minSpeed, maxRating, minRating, name, planet, isUsed, shipType);
         return countAllShips();
     }
 
     @Override
     @Transactional
-    public EntityResponseDTO findById(String requestId) {
+    public EntityResponseDTO findShipById(String requestId) {
         long id = Integer.parseInt(requestId);
         if (id < 1) {
             throw new NumberFormatException("Current data: isNull ");
@@ -73,15 +58,7 @@ public class FindShipServiceImpl implements FindShipService {
         EntityResponseDTO responseDTO = new EntityResponseDTO();
         if (findShipRepository.findById(id).isPresent()) {
             ShipEntity shipEntity = findShipRepository.findById(id).get();
-            responseDTO.setId(shipEntity.getId());
-            responseDTO.setName(shipEntity.getName());
-            responseDTO.setPlanet(shipEntity.getPlanet());
-            responseDTO.setSpeed(shipEntity.getSpeed());
-            responseDTO.setUsed(shipEntity.getUsed());
-            responseDTO.setShipType(shipEntity.getShipType());
-            responseDTO.setRating(shipEntity.getRating());
-            responseDTO.setCrewSize(shipEntity.getCrewSize());
-            responseDTO.setProdDate(shipEntity.getProdDate().getTime());
+            createResponseEntity(responseDTO, shipEntity);
         }
         else {
             throw new NotValidDataException("Current data: does't exist ");

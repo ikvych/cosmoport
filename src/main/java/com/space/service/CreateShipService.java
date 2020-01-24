@@ -6,5 +6,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface CreateShipService {
 
-    ResponseEntity<EntityResponseDTO> createShip(EntityRequestDTO requestDTO);
+    EntityResponseDTO createShip(EntityRequestDTO requestDTO);
 }

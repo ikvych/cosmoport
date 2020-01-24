@@ -240,17 +240,6 @@ public class GetAllTest {
                                         testsHelper.getShipInfosByMaxCrewSize(1500,
                                                 testsHelper.getAllShips())))));
 
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        for (ShipInfoTest shipInfoTest : expected) {
-            System.out.println(shipInfoTest.prodDate);
-        }
-        for (ShipInfoTest shipInfoTest : actual) {
-            System.out.println(shipInfoTest.prodDate);
-        }
-
-
         assertTrue("Возвращается не правильный результат при запросе GET /rest/ships с параметрами after, before, minCrewSize и maxCrewSize.", actual.equals(expected));
     }
 

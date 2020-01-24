@@ -8,29 +8,12 @@ public class EntityResponseDTO {
     public String planet;
     public ShipType shipType;
     public Long prodDate;
-    public boolean isUsed;
+    public Boolean isUsed;
     public Double speed;
     public Integer crewSize;
     public Double rating;
 
     public EntityResponseDTO() {
-    }
-
-    public EntityResponseDTO(String name, String planet, ShipType shipType, Long prodDate, Boolean isUsed, Double speed, Integer crewSize, Double rating, Long id) {
-        if (name == null || planet == null || shipType == null || prodDate == null || speed == null || crewSize == null) {
-            throw new NotValidDataException("Bad request");
-        }
-        this.name = name;
-        this.planet = planet;
-        this.shipType = shipType;
-        this.prodDate = prodDate;
-        this.speed = speed;
-        this.crewSize = crewSize;
-        if (isUsed != null) {
-            this.isUsed = isUsed;
-        }
-        this.rating = rating;
-        this.id = id;
     }
 
     public Long getId() {

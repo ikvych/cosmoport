@@ -9,12 +9,6 @@ import java.util.List;
 
 public interface FindShipRepository extends PagingAndSortingRepository<ShipEntity, Long> {
 
-    List<ShipEntity> findAllById(Long id);
-
-    List<ShipEntity> findAllByProdDateAfterAndProdDateBeforeAndCrewSizeLessThanAndCrewSizeGreaterThan(Date afterDate, Date beforeDate, Integer maxSize, Integer minSize);
-
-    List<ShipEntity> findAllByNameIsContaining(String name);
-
     List<ShipEntity> findAllByProdDateAfterAndProdDateBeforeAndCrewSizeLessThanAndCrewSizeGreaterThanAndSpeedLessThanAndSpeedGreaterThanAndRatingLessThanAndRatingGreaterThanAndNameIsContainingAndPlanetIsContaining
             (Date afterDate, Date beforeDate, Integer maxSize, Integer minSize, Double maxSpeed, Double minSpeed, Double maxRating, Double minRating, String name, String planet);
 

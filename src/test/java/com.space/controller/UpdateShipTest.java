@@ -187,29 +187,6 @@ public class UpdateShipTest {
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         ShipInfoTest actual = mapper.readValue(contentAsString, ShipInfoTest.class);
 
-        System.out.println(actual.name);
-        System.out.println(actual.id);
-        System.out.println(actual.rating);
-        System.out.println(actual.speed);
-        System.out.println(actual.prodDate);
-        System.out.println(actual.isUsed);
-        System.out.println(actual.planet);
-        System.out.println(actual.shipType);
-        System.out.println(actual.crewSize);
-
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println(expected.name);
-        System.out.println(expected.id);
-        System.out.println(expected.rating);
-        System.out.println(expected.speed);
-        System.out.println(expected.prodDate);
-        System.out.println(expected.isUsed);
-        System.out.println(expected.planet);
-        System.out.println(expected.shipType);
-        System.out.println(expected.crewSize);
-
         assertTrue("При запросе POST /rest/ships/{id} корабль должен обновляться и рейтинг пересчитываться", actual.equals(expected));
     }
 

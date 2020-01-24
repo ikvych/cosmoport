@@ -1,21 +1,18 @@
 package com.space.service.storage;
 
-import com.space.exeption.NotValidDataException;
+import com.space.exeption.ShipNotFoundException;
 import com.space.model.EntityRequestDTO;
 import com.space.model.EntityResponseDTO;
 import com.space.model.ShipEntity;
 import com.space.repository.UpdateShipRepository;
 import com.space.service.UpdateShipService;
+import com.space.util.DataUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import java.util.Calendar;
 
 @Service
-public class UpdateShipServiceImpl implements UpdateShipService {
+public class UpdateShipServiceImpl extends AbstractShipService implements UpdateShipService {
 
     @Autowired
     private UpdateShipRepository updateShipRepository;
@@ -23,69 +20,41 @@ public class UpdateShipServiceImpl implements UpdateShipService {
     @Override
     @Transactional
     public EntityResponseDTO updateShipById(String requestId, EntityRequestDTO requestDTO) {
-        long id = Integer.parseInt(requestId);
-        if (id < 1) {
-            throw new NumberFormatException("Current data: isNull ");
-        }
         EntityResponseDTO responseDTO = new EntityResponseDTO();
+        long id = DataUtil.parseId(requestId);
         if (updateShipRepository.findById(id).isPresent()) {
             ShipEntity shipEntity = updateShipRepository.findById(id).get();
-            if (requestDTO.name != null) {
-                shipEntity.setName(requestDTO.name);
+            if (isNotNull(requestDTO.getName()) && isNameValid(requestDTO.getName())) {
+                shipEntity.setName(requestDTO.getName());
             }
-            if (requestDTO.planet != null) {
-                shipEntity.setPlanet(requestDTO.planet);
+            if (isNotNull(requestDTO.getPlanet()) && isPlanetValid(requestDTO.getPlanet())) {
+                shipEntity.setPlanet(requestDTO.getPlanet());
             }
-            if (requestDTO.shipType != null) {
-                shipEntity.setShipType(requestDTO.shipType);
+            if (isNotNull(requestDTO.getShipType()) && isShipTypeValid(requestDTO.getShipType())) {
+                shipEntity.setShipType(requestDTO.getShipType());
             }
-            if (requestDTO.prodDate != null) {
-                shipEntity.setProdDate(requestDTO.prodDate);
+            if (isNotNull(requestDTO.getProdDate()) && isProdDateValid(requestDTO.getProdDate())) {
+                shipEntity.setProdDate(requestDTO.getProdDate());
             }
-            if (requestDTO.isUsed != null) {
-                shipEntity.setUsed(requestDTO.isUsed);
+            if (isNotNull(requestDTO.getSpeed()) && isSpeedValid(requestDTO.getSpeed())) {
+                shipEntity.setSpeed(requestDTO.getSpeed());
             }
-            if (requestDTO.speed != null) {
-                shipEntity.setSpeed(requestDTO.speed);
+            if (isNotNull(requestDTO.getCrewSize()) && isCrewSizeValid(requestDTO.getCrewSize())) {
+                shipEntity.setCrewSize(requestDTO.getCrewSize());
             }
-            if (requestDTO.crewSize != null) {
-                shipEntity.setCrewSize(requestDTO.crewSize);
-            }
-            if (requestDTO.speed != null || requestDTO.isUsed != null || requestDTO.prodDate != null) {
-                double rating;
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(shipEntity.getProdDate());
-                if (shipEntity.getUsed()) {
-                    rating = (80 * shipEntity.getSpeed() * 0.5) / (3019 - calendar.get(Calendar.YEAR) + 1);
-                    System.out.println(shipEntity.getProdDate() + " this is year");
-                } else {
-                    rating = (80 * shipEntity.getSpeed() * 1) / (3019 - calendar.get(Calendar.YEAR) + 1);
-                }
+            if (isRatingNeedToChange(requestDTO.getProdDate(), requestDTO.getSpeed(), requestDTO.getUsed())) {
+                double rating = calcRating(shipEntity.getProdDate(), shipEntity.getSpeed(), shipEntity.getUsed());
                 shipEntity.setRating(rating);
             }
+
             updateShipRepository.save(shipEntity);
             createResponseEntity(responseDTO, shipEntity);
         }
         else {
-            throw new IllegalArgumentException("Current data: does't exist ");
+            throw new ShipNotFoundException("There is no ship with Id - " + id);
         }
         return responseDTO;
     }
 
-    private void createResponseEntity(final EntityResponseDTO responseDTO, final ShipEntity shipEntity) {
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-            @Override
-            public void afterCommit() {
-                responseDTO.setId(shipEntity.getId());
-                responseDTO.setName(shipEntity.getName());
-                responseDTO.setPlanet(shipEntity.getPlanet());
-                responseDTO.setSpeed(shipEntity.getSpeed());
-                responseDTO.setUsed(shipEntity.getUsed());
-                responseDTO.setShipType(shipEntity.getShipType());
-                responseDTO.setRating(shipEntity.getRating());
-                responseDTO.setCrewSize(shipEntity.getCrewSize());
-                responseDTO.setProdDate(shipEntity.getProdDate().getTime());
-            }
-        });
-    }
+
 }

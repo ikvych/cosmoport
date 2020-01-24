@@ -61,9 +61,6 @@ public class ShipEntity {
     }
 
     public void setName(String name) {
-        if (name == null || name.length() > 50 || name.length() == 0) {
-            throw new NotValidDataException("Current data: " + name + " does not belong to this date range " + 1 + "-" + 50);
-        }
         this.name = name;
     }
 
@@ -72,9 +69,6 @@ public class ShipEntity {
     }
 
     public void setPlanet(String planet) {
-        if (planet == null || planet.length() > 50 || planet.length() == 0) {
-            throw new NotValidDataException("Current data: " + planet + " does not belong to this date range " + 1 + "-" + 50);
-        }
         this.planet = planet;
     }
 
@@ -83,9 +77,6 @@ public class ShipEntity {
     }
 
     public void setShipType(ShipType shipType) {
-        if (shipType == null) {
-            throw new NotValidDataException("Current data: isNull ");
-        }
         this.shipType = shipType;
     }
 
@@ -93,24 +84,11 @@ public class ShipEntity {
         return prodDate;
     }
 
-
     public void setProdDate(Date prodDate) {
-        System.out.println(prodDate + " date from setter");
-        Date dateAfter = Date.valueOf(Constant.DATE_AFTER);
-        Date dateBefore = Date.valueOf(Constant.DATE_BEFORE);
-        if (prodDate.after(dateAfter) && prodDate.before(dateBefore)) {
-            this.prodDate = prodDate;
-        } else {
-            throw new NotValidDataException("Current date: " + prodDate.toString() + " does not belong to this date range " + Constant.DATE_AFTER + "-" + Constant.DATE_BEFORE);
-        }
+        this.prodDate = prodDate;
     }
 
     public void setProdDate(Long prodDate) {
-        System.out.println(prodDate + " date from setter");
-        if (prodDate == null || prodDate < 0) {
-            throw new NotValidDataException("Current data: isNull ");
-        }
-
         setProdDate(new Date(prodDate));
     }
 
@@ -132,15 +110,7 @@ public class ShipEntity {
     }
 
     public void setSpeed(Double speed) {
-        if (speed == null) {
-            throw new NotValidDataException("Current speed " + speed + " isNull ");
-        }
-        speed = DataUtil.round(speed);
-        if (speed > Constant.MIN_SHIP_SPEED && speed <= Constant.MAX_SHIP_SPEED) {
-            this.speed = speed;
-        } else {
-            throw new NotValidDataException("Current speed " + speed + " does not belong to this number range " + Constant.MIN_SHIP_SPEED + "-" + Constant.MAX_SHIP_SPEED);
-        }
+        this.speed = speed;
     }
 
     public Integer getCrewSize() {
@@ -148,14 +118,7 @@ public class ShipEntity {
     }
 
     public void setCrewSize(Integer crewSize) {
-        if (crewSize == null) {
-            throw new NotValidDataException("Current speed " + speed + " isNull ");
-        }
-        if (crewSize > Constant.MIN_CREW_SIZE && crewSize <= Constant.MAX_CREW_SIZE) {
-            this.crewSize = crewSize;
-        } else {
-            throw new NotValidDataException("Current crewSize " + crewSize + " does not belong to this number range " + Constant.MIN_CREW_SIZE + "-" + Constant.MAX_CREW_SIZE);
-        }
+        this.crewSize = crewSize;
     }
 
     public Double getRating() {
